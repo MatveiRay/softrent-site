@@ -182,10 +182,13 @@ export default function LoginModal({
                   <SocialButton
                     label={t("login.continueGoogle")}
                     iconPath="M22.5 12.25c0-.85-.07-1.66-.2-2.45H12.18v4.65h5.78c-.25 1.35-1 2.5-2.13 3.27v2.7h3.46c2.03-1.87 3.21-4.62 3.21-8.17z M12.18 23c2.88 0 5.3-.95 7.06-2.58l-3.46-2.7c-.96.65-2.18 1.03-3.6 1.03-2.77 0-5.12-1.87-5.96-4.39H2.66v2.78A10.65 10.65 0 0 0 12.18 23z M6.22 14.36c-.21-.65-.34-1.35-.34-2.06s.12-1.41.34-2.06V7.46H2.66a10.65 10.65 0 0 0 0 9.68l3.56-2.78z M12.18 5.96c1.56 0 2.96.54 4.07 1.59l3.05-3.05A10.66 10.66 0 0 0 12.18 1 10.66 10.66 0 0 0 2.66 7.46l3.56 2.78c.84-2.52 3.19-4.28 5.96-4.28z"
+                    onClick={() => signIn("google", { callbackUrl: "/profile" })}
                   />
                   <SocialButton
                     label={t("login.continueApple")}
                     iconPath="M16.365 1.43c0 1.14-.41 2.09-1.21 2.96-.97 1.05-2.14 1.66-3.42 1.55-.05-.13-.07-.27-.07-.41 0-1.06.46-2.16 1.27-2.97.4-.4.92-.74 1.55-1.01.62-.27 1.21-.42 1.77-.43.07.1.11.21.11.31zM21 17.74c-.39.93-.86 1.79-1.42 2.59-.74 1.07-1.34 1.81-1.79 2.22-.71.65-1.46.99-2.27 1.01-.58 0-1.28-.16-2.09-.49-.82-.33-1.57-.49-2.27-.49-.72 0-1.49.16-2.31.49-.82.34-1.49.51-1.99.53-.78.04-1.55-.31-2.31-1.04-.49-.45-1.13-1.21-1.92-2.29-.86-1.16-1.56-2.5-2.11-4.04-.59-1.66-.88-3.27-.88-4.83 0-1.79.39-3.33 1.16-4.62a6.81 6.81 0 0 1 2.43-2.46 6.5 6.5 0 0 1 3.27-.93c.6 0 1.4.18 2.41.55 1 .37 1.65.55 1.93.55.21 0 .92-.21 2.13-.65 1.14-.4 2.1-.57 2.89-.5 2.13.17 3.74 1.01 4.81 2.53-1.91 1.16-2.86 2.78-2.84 4.86 0 1.62.59 2.97 1.76 4.04.53.5 1.13.89 1.79 1.16-.14.41-.29.81-.45 1.19z"
+                    disabled
+                    title="Apple OAuth не настроен"
                   />
                 </div>
 
@@ -217,11 +220,26 @@ export default function LoginModal({
   );
 }
 
-function SocialButton({ label, iconPath }: { label: string; iconPath: string }) {
+function SocialButton({
+  label,
+  iconPath,
+  onClick,
+  disabled,
+  title,
+}: {
+  label: string;
+  iconPath: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  title?: string;
+}) {
   return (
     <button
       type="button"
-      className="w-full flex items-center justify-center gap-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 hover:border-white/30 rounded-xl py-3.5 text-sm text-white transition"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className="w-full flex items-center justify-center gap-3 bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-40 disabled:cursor-not-allowed border border-white/15 hover:border-white/30 rounded-xl py-3.5 text-sm text-white transition"
     >
       <svg
         width="16"

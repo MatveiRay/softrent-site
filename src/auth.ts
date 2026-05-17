@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 
 /**
  * NextAuth.js v5 (Auth.js) config.
@@ -13,6 +14,10 @@ import Credentials from "next-auth/providers/credentials";
  */
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -34,8 +39,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       },
     }),
-    // Google provider stub — enable when real OAuth credentials are available.
-    // Google({ clientId: process.env.AUTH_GOOGLE_ID!, clientSecret: process.env.AUTH_GOOGLE_SECRET! }),
   ],
   pages: {
     signIn: "/", // sign-in is handled via the LoginModal on the home page
