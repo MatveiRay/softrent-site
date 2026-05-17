@@ -131,12 +131,11 @@ export const DICT = {
 
     // === MANIFESTO ===
     "manifesto.eyebrow": "Манифест",
-    "manifesto.l1": "Мы — не платформа.",
-    "manifesto.l2": "Мы — небольшая студия с двенадцатью домами.",
-    "manifesto.l3": "Каждый из них мы выбрали лично.",
-    "manifesto.l4": "В каждом — спали сами.",
-    "manifesto.l5":
-      "Тринадцатого не будет, пока мы не узнаем его так же.",
+    "manifesto.l1": "Не туризм. Пребывание.",
+    "manifesto.l2": "Не отель. Дом.",
+    "manifesto.l3": "Не ресепшен. Тихий ключ.",
+    "manifesto.l4": "Не план. Свободный день.",
+    "manifesto.l5": "Не маршрут. Возвращение.",
 
     // === COLLECTION ===
     "collection.eyebrow": "Коллекция",
@@ -339,12 +338,11 @@ export const DICT = {
 
     // === MANIFESTO ===
     "manifesto.eyebrow": "Manifesto",
-    "manifesto.l1": "We're not a platform.",
-    "manifesto.l2": "We're a small studio with twelve houses.",
-    "manifesto.l3": "We picked each one ourselves.",
-    "manifesto.l4": "We slept in every single one.",
-    "manifesto.l5":
-      "There won't be a thirteenth until we know it the same way.",
+    "manifesto.l1": "Not tourism. Staying.",
+    "manifesto.l2": "Not a hotel. A home.",
+    "manifesto.l3": "Not a reception. A quiet key.",
+    "manifesto.l4": "Not a plan. A free day.",
+    "manifesto.l5": "Not a route. A return.",
 
     // === COLLECTION ===
     "collection.eyebrow": "The collection",
