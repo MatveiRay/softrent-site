@@ -87,7 +87,6 @@ export const DICT = {
 
     // === SCROLL SECTION ===
     // === SEARCH RESULTS ===
-    "search.find": "Найти",
     "results.eyebrow": "Результаты поиска",
     "results.found": "Найдено объектов",
     "results.empty.title": "По вашим критериям ничего не нашлось",
@@ -278,7 +277,6 @@ export const DICT = {
 
     // === SCROLL SECTION ===
     // === SEARCH RESULTS ===
-    "search.find": "Find",
     "results.eyebrow": "Search results",
     "results.found": "Properties found",
     "results.empty.title": "Nothing matches your criteria",
