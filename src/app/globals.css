@@ -88,18 +88,16 @@ html.lenis body {
   border-color: rgba(212, 184, 150, 1);
 }
 
-@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  html:has(.custom-cursor),
-  html:has(.custom-cursor) body,
-  html:has(.custom-cursor) a,
-  html:has(.custom-cursor) button,
-  html:has(.custom-cursor) [role="button"],
-  html:has(.custom-cursor) input,
-  html:has(.custom-cursor) textarea,
-  html:has(.custom-cursor) select,
-  html:has(.custom-cursor) [data-cursor="interactive"] {
-    cursor: none;
-  }
+html.custom-cursor-enabled,
+html.custom-cursor-enabled body,
+html.custom-cursor-enabled a,
+html.custom-cursor-enabled button,
+html.custom-cursor-enabled [role="button"],
+html.custom-cursor-enabled input,
+html.custom-cursor-enabled textarea,
+html.custom-cursor-enabled select,
+html.custom-cursor-enabled [data-cursor="interactive"] {
+  cursor: none;
 }
 
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {

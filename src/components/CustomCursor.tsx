@@ -37,6 +37,10 @@ export default function CustomCursor() {
       const nextSupport =
         finePointerQuery.matches && !reducedMotionQuery.matches;
 
+      document.documentElement.classList.toggle(
+        "custom-cursor-enabled",
+        nextSupport
+      );
       setIsSupported(nextSupport);
 
       if (!nextSupport) {
@@ -53,6 +57,7 @@ export default function CustomCursor() {
     reducedMotionQuery.addEventListener("change", syncSupport);
 
     return () => {
+      document.documentElement.classList.remove("custom-cursor-enabled");
       finePointerQuery.removeEventListener("change", syncSupport);
       reducedMotionQuery.removeEventListener("change", syncSupport);
     };
