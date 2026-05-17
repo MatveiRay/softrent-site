@@ -17,19 +17,15 @@ const Globe = dynamic(() => import("./Globe"), {
 export default function ScrollSection() {
   const t = useT();
 
-  // Globe perf: mount once seen, pause frameloop when off-screen.
+  // Globe perf: always mount (chunk/texture preloaded), pause frameloop when off-screen.
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [seen, setSeen] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!wrapperRef.current) return;
     const obs = new IntersectionObserver(
-      ([entry]) => {
-        setVisible(entry.isIntersecting);
-        if (entry.isIntersecting) setSeen(true);
-      },
-      { threshold: 0.05, rootMargin: "100px" }
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.01, rootMargin: "400px" }
     );
     obs.observe(wrapperRef.current);
     return () => obs.disconnect();
@@ -75,13 +71,7 @@ export default function ScrollSection() {
             ref={wrapperRef}
             className="relative aspect-square md:aspect-[4/5] rounded-2xl overflow-hidden bg-[#080808] border border-white/8"
           >
-            {seen ? (
-              <Globe active={visible} />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full border border-[#d4b896]/30 border-t-[#d4b896] animate-spin" />
-              </div>
-            )}
+            <Globe active={visible} />
             <div className="absolute inset-x-4 bottom-4 flex items-center justify-between text-[10px] uppercase tracking-[0.28em] text-white/55 pointer-events-none">
               <span>Земля · 12 точек</span>
               <span className="text-[#d4b896]">Покрутите ⤿</span>

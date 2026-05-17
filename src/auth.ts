@@ -17,18 +17,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        name: { label: "Name", type: "text" },
       },
       async authorize(credentials) {
         const email = (credentials?.email as string | undefined)?.trim();
         const password = credentials?.password as string | undefined;
+        const providedName = (credentials?.name as string | undefined)?.trim();
         if (!email || !password || password.length < 4) return null;
 
         const local = email.split("@")[0] ?? "Гость";
-        const name = local.charAt(0).toUpperCase() + local.slice(1);
+        const fallbackName = local.charAt(0).toUpperCase() + local.slice(1);
         return {
           id: email,
           email,
-          name,
+          name: providedName && providedName.length > 0 ? providedName : fallbackName,
         };
       },
     }),

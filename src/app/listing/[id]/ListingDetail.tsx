@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import type { Listing } from "@/data/listings";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import BookingModal from "@/components/BookingModal";
 import { Star, MapPin, ChevronLeft } from "lucide-react";
 import { useT } from "@/components/I18nProvider";
 
 export default function ListingDetail({ listing }: { listing: Listing }) {
   const t = useT();
+  const [bookingOpen, setBookingOpen] = useState(false);
   const nights = 6;
   const subtotal = listing.price * nights;
   const cleaning = 95;
@@ -126,10 +129,22 @@ export default function ListingDetail({ listing }: { listing: Listing }) {
                 <p className="text-white/65 mb-6">
                   {listing.location}, {listing.country}
                 </p>
-                <div className="aspect-[16/8] rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex items-center justify-center">
-                  <p className="text-white/30 text-sm uppercase tracking-[0.3em]">
-                    {t("detail.map")} · {listing.location}
-                  </p>
+                <div className="relative aspect-[16/8] rounded-2xl overflow-hidden border border-white/10">
+                  <iframe
+                    title={`Карта — ${listing.location}`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                      `${listing.location}, ${listing.country}`
+                    )}&hl=ru&z=10&output=embed`}
+                    className="absolute inset-0 w-full h-full grayscale-[0.4] contrast-[0.95] brightness-[0.85] invert-[0.92] hue-rotate-180"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    allowFullScreen
+                  />
+                  {/* Subtle vignette to blend with theme */}
+                  <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#0a0a0a]/70 backdrop-blur-md border border-white/10 text-[10px] uppercase tracking-[0.25em] text-[#d4b896] font-medium pointer-events-none">
+                    {listing.location}
+                  </div>
                 </div>
               </div>
             </div>
@@ -166,7 +181,11 @@ export default function ListingDetail({ listing }: { listing: Listing }) {
                   </p>
                   <p className="text-sm">{t("detail.adults2")}</p>
                 </div>
-                <button className="w-full bg-[#d4b896] hover:bg-[#c0a37e] text-[#0a0a0a] py-4 rounded-lg font-semibold tracking-tight transition">
+                <button
+                  type="button"
+                  onClick={() => setBookingOpen(true)}
+                  className="w-full bg-[#d4b896] hover:bg-[#c0a37e] text-[#0a0a0a] py-4 rounded-lg font-semibold tracking-tight transition"
+                >
                   {t("detail.reserve")}
                 </button>
                 <p className="text-xs text-center text-white/45 mt-4">
@@ -202,6 +221,11 @@ export default function ListingDetail({ listing }: { listing: Listing }) {
         </div>
       </main>
       <Footer />
+      <BookingModal
+        listing={listing}
+        open={bookingOpen}
+        onClose={() => setBookingOpen(false)}
+      />
     </>
   );
 }

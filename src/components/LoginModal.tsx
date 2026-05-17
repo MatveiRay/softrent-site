@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
-import { X, Mail, Lock, ArrowUpRight } from "lucide-react";
+import { X, Mail, Lock, ArrowUpRight, User } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useT } from "./I18nProvider";
 import { useLockLenis } from "./LenisProvider";
@@ -93,6 +93,7 @@ export default function LoginModal({
                     const result = await signIn("credentials", {
                       email: form.get("email"),
                       password: form.get("password"),
+                      name: form.get("name") || "",
                       redirect: false,
                     });
                     setSubmitting(false);
@@ -106,6 +107,23 @@ export default function LoginModal({
                     }
                   }}
                 >
+                  {mode === "signup" && (
+                    <label className="relative block">
+                      <User
+                        size={15}
+                        strokeWidth={1.7}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-[#d4b896]"
+                      />
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        minLength={2}
+                        placeholder={t("login.namePlaceholder")}
+                        className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-[#d4b896] transition"
+                      />
+                    </label>
+                  )}
                   <label className="relative block">
                     <Mail
                       size={15}

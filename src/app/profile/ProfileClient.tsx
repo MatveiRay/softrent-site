@@ -3,10 +3,19 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { signOut } from "next-auth/react";
-import { ChevronLeft, Mail, User as UserIcon, Calendar, LogOut } from "lucide-react";
+import {
+  ChevronLeft,
+  Mail,
+  User as UserIcon,
+  Calendar,
+  LogOut,
+  MapPin,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { useT } from "@/components/I18nProvider";
+import { useT, useI18n } from "@/components/I18nProvider";
+import { getBookings, type Booking } from "@/lib/bookings";
 
 export default function ProfileClient({
   name,
@@ -16,7 +25,22 @@ export default function ProfileClient({
   email: string;
 }) {
   const t = useT();
+  const { lang } = useI18n();
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [mounted, setMounted] = useState(false);
   const initial = (name || email || "?").trim().charAt(0).toUpperCase();
+
+  useEffect(() => {
+    setBookings(getBookings());
+    setMounted(true);
+  }, []);
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
 
   return (
     <>
@@ -72,11 +96,10 @@ export default function ProfileClient({
               <InfoRow
                 Icon={Calendar}
                 label={t("profile.signedInSince")}
-                value={new Date().toLocaleDateString("ru-RU", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                value={new Date().toLocaleDateString(
+                  lang === "ru" ? "ru-RU" : "en-US",
+                  { day: "numeric", month: "long", year: "numeric" }
+                )}
               />
 
               <button
@@ -89,30 +112,52 @@ export default function ProfileClient({
               </button>
             </motion.div>
 
-            {/* Right: bookings placeholder */}
+            {/* Right: bookings */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
               className="lg:col-span-2"
             >
-              <div className="border border-white/10 rounded-3xl p-10 md:p-14 bg-[#0f0f0f]/40">
-                <p className="text-xs uppercase tracking-[0.3em] text-white/40 font-medium mb-6">
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-xs uppercase tracking-[0.3em] text-white/40 font-medium">
                   {t("profile.bookings")}
                 </p>
-                <p className="font-serif text-3xl md:text-4xl leading-tight tracking-tight mb-4 max-w-lg">
-                  {t("profile.noBookings")}
-                </p>
-                <p className="text-base text-white/60 max-w-md leading-relaxed mb-8">
-                  {t("profile.noBookingsHint")}
-                </p>
-                <Link
-                  href="/#collection"
-                  className="inline-flex items-center gap-2 bg-[#d4b896] hover:bg-[#c0a37e] text-[#0a0a0a] text-[13px] uppercase tracking-[0.18em] font-semibold px-7 py-3.5 rounded-full transition"
-                >
-                  {t("profile.openCollection")} →
-                </Link>
+                {mounted && bookings.length > 0 && (
+                  <span className="text-xs text-white/45 tabular-nums">
+                    {bookings.length}
+                  </span>
+                )}
               </div>
+
+              {!mounted ? (
+                <div className="border border-white/10 rounded-3xl p-10 bg-[#0f0f0f]/40 animate-pulse h-48" />
+              ) : bookings.length === 0 ? (
+                <div className="border border-white/10 rounded-3xl p-10 md:p-14 bg-[#0f0f0f]/40">
+                  <p className="font-serif text-3xl md:text-4xl leading-tight tracking-tight mb-4 max-w-lg">
+                    {t("profile.noBookings")}
+                  </p>
+                  <p className="text-base text-white/60 max-w-md leading-relaxed mb-8">
+                    {t("profile.noBookingsHint")}
+                  </p>
+                  <Link
+                    href="/#collection"
+                    className="inline-flex items-center gap-2 bg-[#d4b896] hover:bg-[#c0a37e] text-[#0a0a0a] text-[13px] uppercase tracking-[0.18em] font-semibold px-7 py-3.5 rounded-full transition"
+                  >
+                    {t("profile.openCollection")} →
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {bookings.map((b) => (
+                    <BookingCard
+                      key={b.id}
+                      booking={b}
+                      formatDate={formatDate}
+                    />
+                  ))}
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -120,6 +165,61 @@ export default function ProfileClient({
       <Footer />
     </>
   );
+}
+
+function BookingCard({
+  booking,
+  formatDate,
+}: {
+  booking: Booking;
+  formatDate: (iso: string) => string;
+}) {
+  const totalGuests = booking.guests.adults + booking.guests.children;
+  return (
+    <Link
+      href={`/listing/${booking.listingId}`}
+      className="group flex items-stretch gap-4 border border-white/10 hover:border-white/25 rounded-2xl p-4 bg-[#0f0f0f]/40 transition"
+    >
+      <div
+        className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl bg-cover bg-center border border-white/10"
+        style={{ backgroundImage: `url(${booking.image})` }}
+      />
+      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+        <div>
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-[#d4b896] font-medium tabular-nums">
+              {booking.id}
+            </span>
+          </div>
+          <p className="font-serif text-lg md:text-xl text-white leading-tight mb-1 truncate">
+            {booking.listingTitle.split("—")[0].trim()}
+          </p>
+          <p className="text-xs text-white/55 flex items-center gap-1 mb-2">
+            <MapPin size={11} className="inline" />
+            {booking.location}, {booking.country}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 text-[12px] text-white/60">
+          <span>{formatDate(booking.checkIn)} — {formatDate(booking.checkOut)}</span>
+          <span className="text-white/30">·</span>
+          <span>{booking.nights} {plural(booking.nights, ["ночь", "ночи", "ночей"])}</span>
+          <span className="text-white/30">·</span>
+          <span>{totalGuests} {plural(totalGuests, ["гость", "гостя", "гостей"])}</span>
+          <span className="ml-auto text-[#d4b896] font-semibold tabular-nums">
+            ${booking.total.toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function plural(n: number, forms: [string, string, string]) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return forms[0];
+  if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return forms[1];
+  return forms[2];
 }
 
 function InfoRow({

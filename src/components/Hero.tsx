@@ -141,16 +141,16 @@ export default function Hero() {
           <source src="/hero.mp4" type="video/mp4" />
         </video>
 
-        {/* Очень мягкие оверлеи — видео хорошо видно. Центрирован под композицию. */}
-        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+        {/* Минимальные оверлеи — видео видно лучше */}
+        <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(70% 65% at 50% 55%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 45%, transparent 80%)",
+              "radial-gradient(60% 55% at 50% 55%, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.15) 45%, transparent 80%)",
           }}
         />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0a0a]/85 to-transparent pointer-events-none" />
       </div>
 
       <div className="relative h-full flex flex-col items-center justify-center gap-8 max-w-[1440px] mx-auto px-6 lg:px-10 text-center pt-24">

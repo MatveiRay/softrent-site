@@ -39,6 +39,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={`${inter.variable} ${serif.variable} ${script.variable}`}>
+      <head>
+        {/* Preload globe texture so it's ready before user scrolls */}
+        <link rel="preload" as="image" href="/earth-night.jpg" />
+      </head>
       <body className="grain min-h-screen">
         <AuthProvider>
           <I18nProvider>
