@@ -1,26 +1,109 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-bg: #0a0a0a;
+  --color-paper: #f5f3ee;
+  --color-ink: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-accent: #d4b896;
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-script: var(--font-script);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: #0a0a0a;
+  color: #f5f3ee;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #0a0a0a;
+  color: #f5f3ee;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: #d4b896;
+  color: #0a0a0a;
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* subtle grain noise overlay for premium feel */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* restrained champagne cursor ring */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(212, 184, 150, 0.9);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 120;
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0);
+  transition:
+    width 220ms ease,
+    height 220ms ease,
+    border-color 220ms ease,
+    opacity 180ms ease;
+}
+
+.custom-cursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.custom-cursor[data-interactive="true"] {
+  width: 28px;
+  height: 28px;
+  border-color: rgba(212, 184, 150, 1);
+}
+
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  html:has(.custom-cursor),
+  html:has(.custom-cursor) body,
+  html:has(.custom-cursor) a,
+  html:has(.custom-cursor) button,
+  html:has(.custom-cursor) [role="button"],
+  html:has(.custom-cursor) input,
+  html:has(.custom-cursor) textarea,
+  html:has(.custom-cursor) select,
+  html:has(.custom-cursor) [data-cursor="interactive"] {
+    cursor: none;
+  }
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .custom-cursor {
+    display: none !important;
+  }
 }
