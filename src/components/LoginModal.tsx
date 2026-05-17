@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { X, Mail, Lock, ArrowUpRight } from "lucide-react";
+import { signIn } from "next-auth/react";
 import { useT } from "./I18nProvider";
 import { useLockLenis } from "./LenisProvider";
 
@@ -17,6 +18,8 @@ export default function LoginModal({
   const t = useT();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [mounted, setMounted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => setMounted(true), []);
   useLockLenis(open);
@@ -82,9 +85,25 @@ export default function LoginModal({
 
                 <form
                   className="space-y-3"
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    onClose();
+                    setError(null);
+                    setSubmitting(true);
+                    const form = new FormData(e.currentTarget);
+                    const result = await signIn("credentials", {
+                      email: form.get("email"),
+                      password: form.get("password"),
+                      redirect: false,
+                    });
+                    setSubmitting(false);
+                    if (result?.ok) {
+                      onClose();
+                    } else {
+                      setError(
+                        t("login.error") ||
+                          "Не удалось войти. Проверьте email и пароль."
+                      );
+                    }
                   }}
                 >
                   <label className="relative block">
@@ -95,6 +114,7 @@ export default function LoginModal({
                     />
                     <input
                       type="email"
+                      name="email"
                       required
                       placeholder={t("login.emailPlaceholder")}
                       className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-[#d4b896] transition"
@@ -108,16 +128,22 @@ export default function LoginModal({
                     />
                     <input
                       type="password"
+                      name="password"
                       required
+                      minLength={4}
                       placeholder={t("login.passwordPlaceholder")}
                       className="w-full bg-white/[0.05] border border-white/15 rounded-xl pl-11 pr-4 py-3.5 text-sm text-white placeholder:text-white/40 outline-none focus:border-[#d4b896] transition"
                     />
                   </label>
+                  {error && (
+                    <p className="text-[12px] text-red-300/85 px-1">{error}</p>
+                  )}
                   <button
                     type="submit"
-                    className="group w-full inline-flex items-center justify-center gap-2 bg-[#d4b896] hover:bg-[#c0a37e] text-[#0a0a0a] text-[13px] font-semibold uppercase tracking-[0.18em] py-3.5 rounded-xl transition mt-2"
+                    disabled={submitting}
+                    className="group w-full inline-flex items-center justify-center gap-2 bg-[#d4b896] hover:bg-[#c0a37e] disabled:opacity-60 disabled:cursor-not-allowed text-[#0a0a0a] text-[13px] font-semibold uppercase tracking-[0.18em] py-3.5 rounded-xl transition mt-2"
                   >
-                    {t("login.continue")}
+                    {submitting ? "..." : t("login.continue")}
                     <ArrowUpRight
                       size={14}
                       strokeWidth={2.5}

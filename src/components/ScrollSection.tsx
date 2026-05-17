@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import { useT } from "./I18nProvider";
 
 const Globe = dynamic(() => import("./Globe"), {
@@ -15,6 +16,24 @@ const Globe = dynamic(() => import("./Globe"), {
 
 export default function ScrollSection() {
   const t = useT();
+
+  // Globe perf: mount once seen, pause frameloop when off-screen.
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        setVisible(entry.isIntersecting);
+        if (entry.isIntersecting) setSeen(true);
+      },
+      { threshold: 0.05, rootMargin: "100px" }
+    );
+    obs.observe(wrapperRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <section
@@ -52,8 +71,17 @@ export default function ScrollSection() {
           </motion.div>
 
           {/* Right — interactive 3D Earth */}
-          <div className="relative aspect-square md:aspect-[4/5] rounded-2xl overflow-hidden bg-[#080808] border border-white/8">
-            <Globe />
+          <div
+            ref={wrapperRef}
+            className="relative aspect-square md:aspect-[4/5] rounded-2xl overflow-hidden bg-[#080808] border border-white/8"
+          >
+            {seen ? (
+              <Globe active={visible} />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full border border-[#d4b896]/30 border-t-[#d4b896] animate-spin" />
+              </div>
+            )}
             <div className="absolute inset-x-4 bottom-4 flex items-center justify-between text-[10px] uppercase tracking-[0.28em] text-white/55 pointer-events-none">
               <span>Земля · 12 точек</span>
               <span className="text-[#d4b896]">Покрутите ⤿</span>

@@ -45,12 +45,14 @@ function Earth() {
 
   useMemo(() => {
     texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 4;
+    texture.anisotropy = 2;
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
   }, [texture]);
 
   return (
     <mesh>
-      <sphereGeometry args={[2, 48, 48]} />
+      <sphereGeometry args={[2, 32, 32]} />
       <meshBasicMaterial map={texture} toneMapped={false} />
     </mesh>
   );
@@ -58,28 +60,15 @@ function Earth() {
 
 function Atmosphere() {
   return (
-    <>
-      {/* inner soft glow */}
-      <mesh scale={2.04}>
-        <sphereGeometry args={[1, 24, 24]} />
-        <meshBasicMaterial
-          color="#d4b896"
-          transparent
-          opacity={0.05}
-          side={THREE.BackSide}
-        />
-      </mesh>
-      {/* outer haze */}
-      <mesh scale={2.18}>
-        <sphereGeometry args={[1, 24, 24]} />
-        <meshBasicMaterial
-          color="#d4b896"
-          transparent
-          opacity={0.06}
-          side={THREE.BackSide}
-        />
-      </mesh>
-    </>
+    <mesh scale={2.16}>
+      <sphereGeometry args={[1, 20, 20]} />
+      <meshBasicMaterial
+        color="#d4b896"
+        transparent
+        opacity={0.07}
+        side={THREE.BackSide}
+      />
+    </mesh>
   );
 }
 
@@ -90,7 +79,7 @@ function Pin({ lat, lng, phase }: City) {
   useFrame((state) => {
     if (!haloRef.current) return;
     const t = state.clock.elapsedTime + phase;
-    const pulse = 0.5 + 0.5 * Math.sin(t * 1.6);
+    const pulse = 0.5 + 0.5 * Math.sin(t * 1.5);
     haloRef.current.scale.setScalar(1 + 0.45 * pulse);
     (haloRef.current.material as THREE.MeshBasicMaterial).opacity =
       0.5 - 0.4 * pulse;
@@ -99,11 +88,11 @@ function Pin({ lat, lng, phase }: City) {
   return (
     <group position={pos}>
       <mesh ref={haloRef}>
-        <sphereGeometry args={[0.07, 12, 12]} />
+        <sphereGeometry args={[0.07, 10, 10]} />
         <meshBasicMaterial color="#d4b896" transparent opacity={0.45} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[0.028, 12, 12]} />
+        <sphereGeometry args={[0.028, 10, 10]} />
         <meshBasicMaterial color="#f5e0bd" toneMapped={false} />
       </mesh>
     </group>
@@ -130,13 +119,23 @@ function GlobeScene() {
   );
 }
 
-export default function Globe() {
+export default function Globe({
+  active = true,
+}: {
+  /** When false the scene stops rendering — used to pause when off-screen. */
+  active?: boolean;
+}) {
   return (
     <div className="absolute inset-0">
       <Canvas
         camera={{ position: [0, 0.3, 5.6], fov: 42 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        dpr={[1, 1.25]}
+        frameloop={active ? "always" : "never"}
+        gl={{
+          antialias: false,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
         style={{ width: "100%", height: "100%" }}
       >
         <Suspense fallback={null}>

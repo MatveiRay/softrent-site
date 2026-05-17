@@ -11,6 +11,20 @@ export const DICT = {
     "nav.menu": "Меню",
     "nav.lang": "Язык",
     "nav.langChange": "Сменить язык",
+    "nav.profile": "Профиль",
+    "nav.logout": "Выйти",
+    "login.error": "Не удалось войти. Проверьте email и пароль (минимум 4 символа).",
+    "profile.eyebrow": "Личный кабинет",
+    "profile.greeting": "Здравствуйте,",
+    "profile.email": "Email",
+    "profile.name": "Имя",
+    "profile.signedInSince": "В аккаунте с",
+    "profile.bookings": "Бронирования",
+    "profile.noBookings": "Здесь пока пусто",
+    "profile.noBookingsHint":
+      "Когда вы оформите первое бронирование, оно появится в этом списке.",
+    "profile.openCollection": "Открыть коллекцию",
+    "profile.logout": "Выйти из аккаунта",
 
     // === HERO ===
     "hero.line1": "Поселитесь там, где",
@@ -116,10 +130,12 @@ export const DICT = {
 
     // === MANIFESTO ===
     "manifesto.eyebrow": "Манифест",
-    "manifesto.l1": "Мы ищем не просто жильё для поездки.",
-    "manifesto.l2": "Мы ищем дома, в которых легко освоиться,",
-    "manifesto.l3": "замедлиться",
-    "manifesto.l4": "и почувствовать себя на месте.",
+    "manifesto.l1": "Мы — не платформа.",
+    "manifesto.l2": "Мы — небольшая студия с двенадцатью домами.",
+    "manifesto.l3": "Каждый из них мы выбрали лично.",
+    "manifesto.l4": "В каждом — спали сами.",
+    "manifesto.l5":
+      "Тринадцатого не будет, пока мы не узнаем его так же.",
 
     // === COLLECTION ===
     "collection.eyebrow": "Коллекция",
@@ -200,6 +216,21 @@ export const DICT = {
     "nav.menu": "Menu",
     "nav.lang": "Language",
     "nav.langChange": "Change language",
+    "nav.profile": "Profile",
+    "nav.logout": "Sign out",
+    "login.error":
+      "Could not sign in. Check your email and password (4+ characters).",
+    "profile.eyebrow": "Your account",
+    "profile.greeting": "Hello,",
+    "profile.email": "Email",
+    "profile.name": "Name",
+    "profile.signedInSince": "Member since",
+    "profile.bookings": "Bookings",
+    "profile.noBookings": "Nothing here yet",
+    "profile.noBookingsHint":
+      "Your first booking will appear here once it's confirmed.",
+    "profile.openCollection": "Open the collection",
+    "profile.logout": "Sign out",
 
     // === HERO ===
     "hero.line1": "Stay where you",
@@ -306,10 +337,12 @@ export const DICT = {
 
     // === MANIFESTO ===
     "manifesto.eyebrow": "Manifesto",
-    "manifesto.l1": "We look for more than a place to stay.",
-    "manifesto.l2": "We look for homes where it is easy to settle in,",
-    "manifesto.l3": "slow down",
-    "manifesto.l4": "and feel at home.",
+    "manifesto.l1": "We're not a platform.",
+    "manifesto.l2": "We're a small studio with twelve houses.",
+    "manifesto.l3": "We picked each one ourselves.",
+    "manifesto.l4": "We slept in every single one.",
+    "manifesto.l5":
+      "There won't be a thirteenth until we know it the same way.",
 
     // === COLLECTION ===
     "collection.eyebrow": "The collection",

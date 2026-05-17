@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Menu, Globe, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession, signOut } from "next-auth/react";
 import { useI18n, useT } from "./I18nProvider";
 import LoginModal from "./LoginModal";
 import type { Lang } from "@/lib/i18n";
@@ -63,6 +64,96 @@ function NavLink({
         }`}
       />
     </Link>
+  );
+}
+
+function AuthButton({ onLogin }: { onLogin: () => void }) {
+  const t = useT();
+  const { data: session, status } = useSession();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const close = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, []);
+
+  if (status === "loading") {
+    return (
+      <div className="hidden md:block w-9 h-9 rounded-full bg-white/[0.04] border border-white/10 animate-pulse" />
+    );
+  }
+
+  if (!session?.user) {
+    return (
+      <button
+        onClick={onLogin}
+        className="hidden md:inline-flex items-center text-[12px] uppercase tracking-[0.18em] font-medium text-white/85 hover:text-white relative group transition px-1 py-1"
+      >
+        {t("nav.login")}
+        <span className="absolute left-0 right-0 -bottom-0.5 h-px bg-[#d4b896] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]" />
+      </button>
+    );
+  }
+
+  const name = session.user.name || session.user.email || "?";
+  const initial = name.trim().charAt(0).toUpperCase();
+
+  return (
+    <div ref={ref} className="relative hidden md:block">
+      <button
+        onClick={() => setOpen(!open)}
+        aria-label={t("nav.profile")}
+        className="flex items-center gap-2.5 group"
+      >
+        <span className="text-[12px] uppercase tracking-[0.18em] font-medium text-white/85 group-hover:text-white transition">
+          {name}
+        </span>
+        <span className="w-9 h-9 rounded-full bg-[#d4b896] text-[#0a0a0a] flex items-center justify-center text-sm font-semibold border border-[#d4b896]/40 shadow-[0_4px_12px_-2px_rgba(212,184,150,0.4)]">
+          {initial}
+        </span>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.97 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute right-0 top-full mt-3 w-60 bg-[#141414]/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] p-2 z-50"
+          >
+            <div className="px-3 py-3 border-b border-white/10 mb-1">
+              <p className="text-sm text-white truncate">{name}</p>
+              <p className="text-[11px] text-white/45 truncate">
+                {session.user.email}
+              </p>
+            </div>
+            <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className="block px-3 py-2.5 rounded-xl text-sm text-white hover:bg-white/[0.07] transition"
+            >
+              {t("nav.profile")}
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                signOut({ callbackUrl: "/" });
+              }}
+              className="w-full text-left px-3 py-2.5 rounded-xl text-sm text-white/75 hover:bg-white/[0.07] hover:text-white transition"
+            >
+              {t("nav.logout")}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -200,13 +291,7 @@ export default function Nav() {
           </nav>
 
           <div className="flex items-center gap-4 shrink-0">
-            <button
-              onClick={() => setLoginOpen(true)}
-              className="hidden md:inline-flex items-center text-[12px] uppercase tracking-[0.18em] font-medium text-white/85 hover:text-white relative group transition px-1 py-1"
-            >
-              {t("nav.login")}
-              <span className="absolute left-0 right-0 -bottom-0.5 h-px bg-[#d4b896] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]" />
-            </button>
+            <AuthButton onLogin={() => setLoginOpen(true)} />
             <LangSwitcher />
             <button
               aria-label={t("nav.menu")}

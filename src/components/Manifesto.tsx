@@ -10,6 +10,7 @@ const LINE_KEYS: DictKey[] = [
   "manifesto.l2",
   "manifesto.l3",
   "manifesto.l4",
+  "manifesto.l5",
 ];
 
 export default function Manifesto() {
@@ -37,22 +38,29 @@ export default function Manifesto() {
           {t("manifesto.eyebrow")}
         </motion.p>
         <div className="space-y-3">
-          {LINE_KEYS.map((key, i) => (
-            <motion.p
-              key={key + t(key)}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{
-                duration: 0.9,
-                delay: i * 0.12,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className="font-serif text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-[-0.01em] max-w-5xl"
-            >
-              {t(key)}
-            </motion.p>
-          ))}
+          {LINE_KEYS.map((key, i) => {
+            const isFinal = i === LINE_KEYS.length - 1;
+            return (
+              <motion.p
+                key={key + t(key)}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{
+                  duration: 0.9,
+                  delay: i * 0.14,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className={`font-serif leading-[1.1] tracking-[-0.01em] max-w-5xl ${
+                  isFinal
+                    ? "italic text-white/75 text-2xl md:text-4xl lg:text-5xl pt-6"
+                    : "text-3xl md:text-5xl lg:text-6xl"
+                }`}
+              >
+                {t(key)}
+              </motion.p>
+            );
+          })}
         </div>
       </div>
     </section>

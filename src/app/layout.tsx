@@ -3,6 +3,7 @@ import { Inter, Instrument_Serif, Allura } from "next/font/google";
 import CustomCursor from "@/components/CustomCursor";
 import LenisProvider from "@/components/LenisProvider";
 import { I18nProvider } from "@/components/I18nProvider";
+import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,10 +40,12 @@ export default function RootLayout({
   return (
     <html lang="ru" className={`${inter.variable} ${serif.variable} ${script.variable}`}>
       <body className="grain min-h-screen">
-        <I18nProvider>
-          <LenisProvider>{children}</LenisProvider>
-          <CustomCursor />
-        </I18nProvider>
+        <AuthProvider>
+          <I18nProvider>
+            <LenisProvider>{children}</LenisProvider>
+            <CustomCursor />
+          </I18nProvider>
+        </AuthProvider>
       </body>
     </html>
   );
