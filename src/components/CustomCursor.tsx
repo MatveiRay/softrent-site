@@ -59,12 +59,7 @@ export default function CustomCursor() {
   }, []);
 
   useEffect(() => {
-    if (!isSupported) {
-      document.documentElement.classList.remove("custom-cursor-enabled");
-      return;
-    }
-
-    document.documentElement.classList.add("custom-cursor-enabled");
+    if (!isSupported) return;
 
     const setVisible = (nextVisible: boolean) => {
       if (visibleRef.current === nextVisible) return;
@@ -147,8 +142,6 @@ export default function CustomCursor() {
         window.cancelAnimationFrame(frameRef.current);
         frameRef.current = null;
       }
-
-      document.documentElement.classList.remove("custom-cursor-enabled");
     };
   }, [isSupported]);
 
@@ -161,6 +154,7 @@ export default function CustomCursor() {
       className="custom-cursor"
       data-visible={isVisible}
       data-interactive={isInteractive}
+      style={{ position: "fixed", top: 0, left: 0 }}
     />
   );
 }
