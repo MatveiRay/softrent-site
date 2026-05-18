@@ -1,0 +1,178 @@
+// SoftRent database schema
+// Postgres on Neon · accessed via Prisma client
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =====================================================================
+// Domain types
+// =====================================================================
+
+enum Category {
+  TROPICAL
+  MOUNTAIN
+}
+
+enum ListingSource {
+  SEED          // 12 hand-curated objects from listings.ts
+  PLUM_GUIDE    // scraped from plumguide.com (curated luxury)
+  INSIDE_AIRBNB // public Inside Airbnb research dataset
+  ADMIN         // manually added through /admin
+  SYNTHETIC     // demo-only hand-curated candidates
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+}
+
+// =====================================================================
+// User (synced from NextAuth session)
+// =====================================================================
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  createdAt DateTime  @default(now())
+  bookings  Booking[]
+}
+
+// =====================================================================
+// Listings — the core entity
+// =====================================================================
+
+model Listing {
+  id          String   @id @default(cuid())
+  slug        String   @unique // url-friendly, e.g. "casa-luz" or "plum-vh-12345"
+
+  title       String
+  description String   @db.Text
+
+  location    String   // city
+  country     String
+  lat         Float?
+  lng         Float?
+
+  category    Category
+
+  price       Int      // USD per night
+  rating      Float?
+  reviews     Int      @default(0)
+  dateRange   String?  // suggested date label
+
+  bedrooms    Int      @default(1)
+  beds        Int      @default(1)
+  baths       Int      @default(1)
+  guests      Int      @default(2)
+
+  hostName    String?
+  hostSince   String?
+
+  // Arrays — Postgres supports natively, much cleaner than separate tables
+  images      String[] @default([])
+  amenities   String[] @default([])
+
+  // Source tracking — for ingestion pipeline visibility
+  source      ListingSource @default(SEED)
+  sourceUrl   String?
+  sourceId    String?  // id at the source
+  luxuryScore Float?   // calculated by our luxury detector
+
+  isPublished Boolean  @default(true)
+
+  bookings    Booking[]
+  availabilityBlocks AvailabilityBlock[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([country])
+  @@index([source])
+  @@index([isPublished])
+}
+
+// =====================================================================
+// Booking — persistent reservations
+// =====================================================================
+
+model Booking {
+  id           String        @id @default(cuid())
+  publicId     String        @unique // human-friendly e.g. "SR-K7M2P9"
+
+  listingId    String
+  listing      Listing       @relation(fields: [listingId], references: [id])
+
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id])
+
+  contactName  String
+  contactEmail String
+
+  checkIn      DateTime
+  checkOut     DateTime
+  nights       Int
+
+  adults       Int           @default(2)
+  children     Int           @default(0)
+  infants      Int           @default(0)
+
+  pricePerNight Int
+  subtotal     Int
+  cleaning     Int
+  serviceFee   Int
+  total        Int
+
+  status       BookingStatus @default(PENDING)
+
+  createdAt    DateTime      @default(now())
+
+  @@index([listingId])
+  @@index([userId])
+  @@index([checkIn, checkOut])
+  @@index([status])
+}
+
+// =====================================================================
+// Availability blocks — dates manually closed by admin / maintenance
+// =====================================================================
+
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([listingId])
+  @@index([startDate, endDate])
+}
+
+// =====================================================================
+// IngestRecord — every parser/scraper attempt logged for audit
+// =====================================================================
+
+model IngestRecord {
+  id        String        @id @default(cuid())
+  source    ListingSource
+  sourceUrl String?
+  sourceId  String?
+  status    String        // "imported" | "skipped-duplicate" | "rejected-not-luxury" | "failed"
+  message   String?       @db.Text
+  payload   Json?         // raw payload for debugging
+  listingId String?       // populated on successful import
+  createdAt DateTime      @default(now())
+
+  @@index([source])
+  @@index([status])
+  @@index([createdAt])
+}

@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
-import { listings } from "@/data/listings";
+import { getAllListingSlugs, getListingBySlug } from "@/lib/listings-db";
 import ListingDetail from "./ListingDetail";
 
-export function generateStaticParams() {
-  return listings.map((l) => ({ id: l.id }));
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const slugs = await getAllListingSlugs();
+  return slugs.map((slug) => ({ id: slug }));
 }
 
 export default async function ListingPage({
@@ -12,7 +15,7 @@ export default async function ListingPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const listing = listings.find((l) => l.id === id);
+  const listing = await getListingBySlug(id);
   if (!listing) notFound();
   return <ListingDetail listing={listing} />;
 }

@@ -19,12 +19,7 @@ import {
 } from "lucide-react";
 import { useT, useI18n } from "./I18nProvider";
 import { useLockLenis } from "./LenisProvider";
-import {
-  saveBooking,
-  generateBookingId,
-  diffNights,
-  type Booking,
-} from "@/lib/bookings";
+import { diffNights } from "@/lib/bookings";
 import type { Listing } from "@/data/listings";
 
 type Step = "dates" | "guests" | "review" | "success";
@@ -74,6 +69,8 @@ export default function BookingModal({
   const [name, setName] = useState(session?.user?.name ?? "");
   const [email, setEmail] = useState(session?.user?.email ?? "");
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => setMounted(true), []);
   useLockLenis(open);
@@ -88,6 +85,8 @@ export default function BookingModal({
       setGuests({ adults: 2, children: 0, infants: 0 });
       setName(session?.user?.name ?? "");
       setEmail(session?.user?.email ?? "");
+      setSubmitting(false);
+      setError(null);
     }
   }, [open, session]);
 
@@ -115,30 +114,37 @@ export default function BookingModal({
   const canProceedGuests = guests.adults > 0;
   const canConfirm = !!name && !!email && nights > 0;
 
-  const confirm = () => {
-    const id = generateBookingId();
-    const booking: Booking = {
-      id,
-      listingId: listing.id,
-      listingTitle: listing.title,
-      location: listing.location,
-      country: listing.country,
-      image: listing.images[0],
-      pricePerNight: listing.price,
-      checkIn,
-      checkOut,
-      nights,
-      guests,
-      contactName: name,
-      contactEmail: email,
-      total,
-      cleaning,
-      serviceFee,
-      createdAt: new Date().toISOString(),
-    };
-    saveBooking(booking);
-    setBookingId(id);
-    setStep("success");
+  const confirm = async () => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listingSlug: listing.id,
+          checkIn,
+          checkOut,
+          contactName: name,
+          contactEmail: email,
+          adults: guests.adults,
+          children: guests.children,
+          infants: guests.infants,
+        }),
+      });
+      const payload = await res.json();
+      if (!res.ok) {
+        throw new Error(payload.error || "Не удалось создать бронирование");
+      }
+      setBookingId(payload.publicId);
+      setStep("success");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Не удалось создать бронирование"
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const stepNumber = step === "dates" ? 1 : step === "guests" ? 2 : step === "review" ? 3 : 3;
@@ -337,12 +343,15 @@ export default function BookingModal({
                           <ChevronLeft size={14} /> Назад
                         </button>
                         <FooterButton
-                          disabled={!canConfirm}
+                          disabled={!canConfirm || submitting}
                           onClick={confirm}
-                          label="Забронировать"
+                          label={submitting ? "Отправляем..." : "Забронировать"}
                           inline
                         />
                       </div>
+                      {error && (
+                        <p className="text-sm text-red-300 mt-4">{error}</p>
+                      )}
                     </motion.div>
                   )}
 
@@ -363,16 +372,16 @@ export default function BookingModal({
                         <Check size={32} strokeWidth={2.5} className="text-[#d4b896]" />
                       </motion.div>
                       <p className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.3em] text-[#d4b896] font-medium mb-3">
-                        <Sparkles size={12} /> Забронировано
+                        <Sparkles size={12} /> Заявка отправлена
                       </p>
                       <h3 className="font-serif text-3xl md:text-4xl text-white mb-3 leading-tight">
                         Спасибо, {name.split(" ")[0]}.
                       </h3>
                       <p className="text-base text-white/65 max-w-sm mx-auto leading-relaxed mb-6">
-                        Подтверждение скоро придёт на <span className="text-white">{email}</span>. Бронь видна в вашем профиле.
+                        Мы получили заявку и скоро проверим даты. Статус уже виден в вашем профиле на <span className="text-white">{email}</span>.
                       </p>
                       <div className="inline-flex items-center gap-3 px-5 py-3 border border-[#d4b896]/30 bg-[#d4b896]/[0.05] rounded-full mb-7">
-                        <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Номер брони</span>
+                        <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Номер заявки</span>
                         <span className="font-serif text-lg text-[#d4b896] tabular-nums">{bookingId}</span>
                       </div>
                       <div>

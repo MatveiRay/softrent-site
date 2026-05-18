@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { listings } from "@/data/listings";
+import type { Listing } from "@/data/listings";
 import ListingCard from "./ListingCard";
 import CategoryTabs from "./CategoryTabs";
 import { motion } from "framer-motion";
 import { useT } from "./I18nProvider";
 
-export default function ListingsGrid() {
+export default function ListingsGrid({
+  listings,
+}: {
+  listings: Listing[];
+}) {
   const t = useT();
   const [cat, setCat] = useState("all");
   const filtered =

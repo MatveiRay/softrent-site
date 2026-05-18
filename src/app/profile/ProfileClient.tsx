@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { useT, useI18n } from "@/components/I18nProvider";
-import { getBookings, type Booking } from "@/lib/bookings";
+import { type Booking } from "@/lib/bookings";
 
 export default function ProfileClient({
   name,
@@ -31,8 +31,18 @@ export default function ProfileClient({
   const initial = (name || email || "?").trim().charAt(0).toUpperCase();
 
   useEffect(() => {
-    setBookings(getBookings());
-    setMounted(true);
+    let active = true;
+    fetch("/api/bookings")
+      .then((res) => res.json())
+      .then((payload) => {
+        if (active) setBookings(payload.bookings ?? []);
+      })
+      .finally(() => {
+        if (active) setMounted(true);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const formatDate = (iso: string) =>
@@ -190,6 +200,9 @@ function BookingCard({
             <span className="text-[10px] uppercase tracking-[0.25em] text-[#d4b896] font-medium tabular-nums">
               {booking.id}
             </span>
+            <span className="text-[10px] uppercase tracking-[0.22em] text-white/45">
+              {statusLabel(booking.status)}
+            </span>
           </div>
           <p className="font-serif text-lg md:text-xl text-white leading-tight mb-1 truncate">
             {booking.listingTitle.split("—")[0].trim()}
@@ -220,6 +233,12 @@ function plural(n: number, forms: [string, string, string]) {
   if (mod10 === 1 && mod100 !== 11) return forms[0];
   if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return forms[1];
   return forms[2];
+}
+
+function statusLabel(status: Booking["status"]) {
+  if (status === "CONFIRMED") return "Подтверждена";
+  if (status === "CANCELED") return "Отклонена";
+  return "На проверке";
 }
 
 function InfoRow({
